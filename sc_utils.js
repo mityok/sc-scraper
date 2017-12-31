@@ -1,11 +1,13 @@
 const htmlparser= require('htmlparser2');
+const cnst = require('./sc_const.js');
+
 const parseMainPage = body => {
   return new Promise((resolve, reject) => {
     let an = false
     const links = [];
     var parsedData = new htmlparser.Parser({   
       onopentag: (name, attribs) => {
-        if (name === 'a' && attribs.href && attribs.href.split('/').length === 5 && attribs.href.indexOf('main.htm') > 0) {
+        if (name === 'a' && attribs.href && attribs.href.split('/').length === 5 && attribs.href.indexOf(cnst.MAIN_PAGE) > 0) {
           const obj = {
             href: attribs.href
           };

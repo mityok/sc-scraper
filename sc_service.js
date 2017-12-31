@@ -9,12 +9,9 @@ const getLink = (name, gallery, index) => `${name.substring(0,2)}${gallery}x${('
 //
 const getThumb = (name, gallery, index) => `tn_${getLink(name,gallery,index)}`;
 
-
-
 const loadHtml = url => {
   return new Promise((resolve, reject) => {
     http.get(url, res => {
-      //res.setEncoding("utf8");
       let body = "";
       res.on("data", data => {
         body += data;
@@ -61,7 +58,7 @@ const makeDir = dir => {
 const loadMainLink = link => {
   const photos = link.href.split('/')
   photos.pop()
-  photos.push('photos.htm');
+  photos.push(cnst.PHOTOS_PAGE);
   console.log('end2', link.href, photos.join('/'));
   loadHtml(photos.join('/')).then(utils.parsePhotosPage).then(galleriesIds => {
   galleriesIds = genUtil.fixGalleryArray(galleriesIds);
@@ -76,13 +73,9 @@ const loadMainLink = link => {
   })
 }
 
-const MAX_PHOTOS = 30;
-
-const loadAllGalleries = () => {}
-
 const loadImages = (photos, galleryId) => {
   return loadAllImages(photos, galleryId).then(results=>{
-    let index = MAX_PHOTOS;
+    let index = cnst.MAX_PHOTOS;
     for(let i = 0; i < results.length; i++){
       if(results[i].type === 'error'){
         index = i;
@@ -95,7 +88,7 @@ const loadImages = (photos, galleryId) => {
 
 const loadAllImages = (photos, galleryId) => {
   const arr = [];
-  for (let j = 1; j <= MAX_PHOTOS; j++) {
+  for (let j = 1; j <= cnst.MAX_PHOTOS; j++) {
     const href = [...photos];
     href.pop();
     const name = href[href.length - 1];
@@ -107,9 +100,9 @@ const loadAllImages = (photos, galleryId) => {
 
 const writeThumb = (name, gallery, index, thumb) => {
   //console.log('b', name, thumb);
-  makeDir(`${MAIN_DIR}/${name}/${gallery}`);
-  makeDir(`${MAIN_DIR}/${name}/${gallery}/tn`);
-  return download(thumb, `${MAIN_DIR}/${name}/${gallery}/tn/${index}.jpg`);
+  makeDir(`${cnst.MAIN_DIR}/${name}/${gallery}`);
+  makeDir(`${cnst.MAIN_DIR}/${name}/${gallery}/tn`);
+  return download(thumb, `${cnst.MAIN_DIR}/${name}/${gallery}/tn/${index}.jpg`);
 }
 const launch = ()=> {
   loadHtml(cnst.MAIN).then(utils.parseMainPage).then(links => {
@@ -133,20 +126,18 @@ const init = () => {
 }
 const decif = pass => {
   var decipher = crypto.createDecipher('aes-128-cbc', pass);
-  var dec = decipher.update('c2c705fd6da9d0aebda63e90ccd55ad55a2dfb6f729c0cb6611d412e39f4e67036aff2fdc915653d1100e52ced71fbbd92176b82748b41c2b010d0e326810e5b','hex','utf8')
+  var dec = decipher.update( cnst.KEY, 'hex','utf8')
   dec += decipher.final('utf8');
   return dec;
 }
 
-const MAIN_DIR = 'images';
-
 const writeLinks = links => {
-  makeDir(MAIN_DIR)
+  makeDir(cnst.MAIN_DIR)
   links.forEach(link => {
     const dir = link.href.split('/')[3];
     const file = link.src.split('/').pop();
-    makeDir(`${MAIN_DIR}/${dir}`)
-    download(link.src, `${MAIN_DIR}/${dir}/${file}`);
+    makeDir(`${cnst.MAIN_DIR}/${dir}`)
+    download(link.src, `${cnst.MAIN_DIR}/${dir}/${file}`);
   })
   console.log('done4');
 }
